@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#04040a">
+<title>TAKTİKSEL MATRİS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #04040a;
+  --bg2: #070710;
+  --bg3: #0a0a18;
+  --surface: #0e0e1e;
+  --surface2: #141428;
+  --border: #1a1a36;
+  --border2: #252550;
+  --accent: #00f5ff;
+  --accent2: #7c3aed;
+  --pos: #00e676;
+  --neg: #ff4444;
+  --gold: #ffd600;
+  --purple: #a78bfa;
+  --text: #e8e8f0;
+  --muted: #4a4a70;
+  --muted2: #2e2e58;
+  --danger: #ff1744;
+  --success: #00c853;
+
+  /* Mobile safe areas */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html { height: 100%; overflow-x: hidden; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  min-height: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  touch-action: manipulation;
+}
+
+/* Scanline */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+/* ── PAGES ─────────────────────────────────────────── */
+.page { display: none; min-height: 100dvh; }
+.page.active { display: flex; flex-direction: column; }
+
+/* ══════════════════════ LANDING ══════════════════════ */
+#page-landing {
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  padding-top: calc(20px + var(--sat));
+  padding-bottom: calc(20px + var(--sab));
+}
+
+/* Animated grid background */
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridDrift 25s linear infinite;
+}
+@keyframes gridDrift {
+  0%{ background-position: 0 0; }
+  100%{ background-position: 50px 50px; }
+}
+
+/* Glow orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  pointer-events: none;
+}
+.orb-1 { width: 400px; height: 400px; background: var(--accent2); top: -100px; right: -100px; animation: orbFloat 8s ease-in-out infinite; }
+.orb-2 { width: 300px; height: 300px; background: var(--accent); bottom: -80px; left: -80px; animation: orbFloat 12s ease-in-out infinite reverse; }
+@keyframes orbFloat { 0%,100%{ transform: translate(0,0); } 50%{ transform: translate(30px,20px); } }
+
+.landing-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+}
+
+.top-tag {
+  font-size: 10px;
+  letter-spacing: 6px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  position: relative;
+  padding: 0 24px;
+}
+.top-tag::before, .top-tag::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 1px;
+  background: var(--muted);
+}
+.top-tag::before { left: 0; }
+.top-tag::after { right: 0; }
+
+.glitch-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(64px, 18vw, 120px);
+  letter-spacing: 6px;
+  line-height: 0.88;
+  color: var(--text);
+  text-align: center;
+  position: relative;
+  animation: flicker 8s infinite;
+}
+.glitch-title .accent-line {
+  color: var(--accent);
+  display: block;
+  text-shadow: 0 0 30px rgba(0,245,255,0.5), 0 0 60px rgba(0,245,255,0.2);
+}
+.glitch-title::before, .glitch-title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  animation: glitchAnim 5s infinite;
+}
+.glitch-title::before { color: var(--neg); clip-path: polygon(0 18%,100% 18%,100% 36%,0 36%); animation-delay: 0.7s; }
+.glitch-title::after { color: var(--accent); clip-path: polygon(0 58%,100% 58%,100% 76%,0 76%); animation-delay: 1.3s; }
+@keyframes glitchAnim {
+  0%,88%,100%{ transform: translateX(0); opacity:0; }
+  90%{ transform: translateX(-5px); opacity:0.6; }
+  93%{ transform: translateX(5px); opacity:0.6; }
+  96%{ transform: translateX(0); opacity:0; }
+}
+@keyframes flicker {
+  0%,94%,96%,98%,100%{ opacity:1; }
+  95%,97%{ opacity:0.75; }
+}
+
+.subtitle-line {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 12px;
+  text-transform: uppercase;
+}
+
+/* Hex decorations */
+.hex-row {
+  display: flex;
+  gap: 8px;
+  margin: 28px 0;
+  align-items: center;
+}
+.hex {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
+  opacity: 0.4;
+}
+.hex.lg { width: 12px; height: 12px; opacity: 0.8; animation: hexPulse 2s ease-in-out infinite; }
+.hex.mid { width: 10px; height: 10px; opacity: 0.6; }
+@keyframes hexPulse { 0%,100%{ opacity:0.8; } 50%{ opacity:0.3; } }
+.hex-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.2; max-width: 80px; }
+
+.landing-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.btn-primary {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  padding: 18px 32px;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s;
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  text-transform: uppercase;
+  min-height: 56px;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: translateX(-110%);
+  transition: transform 0.25s;
+  z-index: -1;
+}
+.btn-primary:active::before, .btn-primary:hover::before { transform: translateX(0); }
+.btn-primary:active, .btn-primary:hover { color: #000; }
+
+.btn-secondary {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 3px;
+  padding: 16px 32px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.25s;
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  text-transform: uppercase;
+  min-height: 52px;
+}
+.btn-secondary:active, .btn-secondary:hover { border-color: var(--text); color: var(--text); }
+
+/* Floating matrix preview */
+.matrix-preview {
+  display: grid;
+  grid-template-columns: repeat(5, 36px);
+  gap: 3px;
+  position: absolute;
+  bottom: 32px;
+  right: 20px;
+  opacity: 0.08;
+  animation: previewPulse 4s ease-in-out infinite;
+}
+@keyframes previewPulse { 0%,100%{ opacity:0.06; } 50%{ opacity:0.15; } }
+.preview-cell {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  color: var(--accent);
+  border-radius: 3px;
+}
+.preview-cell.neg { color: var(--neg); }
+
+/* Status bar */
+.status-bar {
+  position: absolute;
+  top: calc(16px + var(--sat));
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--muted2);
+}
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--pos);
+  animation: blink 2s ease-in-out infinite;
+  display: inline-block;
+  margin-right: 6px;
+}
+@keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.2; } }
+
+/* ══════════════════════ HOW TO PLAY ══════════════════════ */
+#page-howto {
+  padding: 0 0 calc(20px + var(--sab));
+}
+
+.page-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(4,4,10,0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: calc(14px + var(--sat)) 20px 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-back {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--border2);
+  padding: 8px 14px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  min-height: 40px;
+  min-width: 44px;
+}
+.nav-back:active, .nav-back:hover { color: var(--accent); border-color: var(--accent); }
+
+.header-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 4px;
+  color: var(--text);
+}
+.header-title span { color: var(--accent); }
+
+.howto-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.section-heading {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 4px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.section-heading span { color: var(--accent); }
+.section-line {
+  width: 40px; height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  margin-bottom: 20px;
+}
+
+.howto-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+@media (max-width: 400px) {
+  .howto-cards { grid-template-columns: 1fr; }
+}
+
+.howto-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.howto-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 2px; height: 100%;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.3s;
+}
+.howto-card:hover::before { transform: scaleY(1); }
+.card-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 48px;
+  color: var(--border2);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.card-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.card-text {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #888;
+  font-family: 'Space Mono', monospace;
+}
+.card-text strong { color: var(--text); }
+
+.mechanic-demo {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 28px;
+}
+.demo-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+.demo-inner {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 48px);
+  gap: 4px;
+}
+.demo-cell {
+  width: 48px; height: 48px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+.demo-cell.pos { color: var(--pos); }
+.demo-cell.neg { color: var(--neg); }
+.demo-cell.zero { color: var(--muted); border-style: dashed; }
+.demo-cell.anchor { border-color: var(--accent); box-shadow: 0 0 12px rgba(0,245,255,0.3); color: var(--accent); }
+.demo-cell.moving { border-color: var(--gold); animation: moveFlash 1s ease-in-out infinite alternate; }
+@keyframes moveFlash { from{ opacity:1; } to{ opacity:0.4; } }
+
+.demo-controls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+}
+.demo-arrow {
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid var(--muted2);
+  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  min-height: 44px;
+}
+.demo-arrow:active, .demo-arrow:hover { border-color: var(--accent); color: var(--accent); }
+.demo-arrow.active-dir { border-color: var(--gold); color: var(--gold); background: rgba(255,214,0,0.05); }
+#demoExplain {
+  margin-top: 12px;
+  font-size: 10px;
+  color: var(--muted);
+  min-height: 16px;
+  letter-spacing: 1px;
+}
+
+/* Difficulty table - mobile friendly */
+.diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+  font-size: 11px;
+}
+.diff-table th {
+  background: var(--surface2);
+  padding: 10px 8px;
+  text-align: left;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+}
+.diff-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  color: #888;
+  vertical-align: middle;
+}
+.diff-table td:first-child { font-weight: 700; color: var(--text); }
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge-easy { background: rgba(0,230,118,0.1); color: var(--pos); border: 1px solid rgba(0,230,118,0.25); }
+.badge-med { background: rgba(255,214,0,0.08); color: var(--gold); border: 1px solid rgba(255,214,0,0.25); }
+.badge-hard { background: rgba(255,68,68,0.1); color: var(--neg); border: 1px solid rgba(255,68,68,0.25); }
+.badge-extreme { background: rgba(124,58,237,0.12); color: var(--purple); border: 1px solid rgba(124,58,237,0.3); }
+
+/* ══════════════════════ SETUP ══════════════════════ */
+#page-setup {
+  padding: 0 0 calc(20px + var(--sab));
+}
+
+.setup-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 16px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.setup-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px;
+  letter-spacing: 4px;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.setup-sub {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 3px;
+  margin-bottom: 28px;
+}
+
+.setup-field { margin-bottom: 20px; }
+.field-label {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 8px;
+  font-family: 'Orbitron', sans-serif;
+}
+.size-row { display: flex; gap: 10px; }
+.size-row .setup-field { flex: 1; }
+
+.setup-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  padding: 14px 16px;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 52px;
+}
+.setup-input:focus { border-color: var(--accent); }
+
+.diff-options { display: flex; flex-direction: column; gap: 8px; }
+.diff-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 64px;
+}
+.diff-option:active, .diff-option:hover { border-color: var(--border2); }
+.diff-option.selected { border-color: var(--accent); background: rgba(0,245,255,0.03); }
+.diff-option input[type=radio] { display: none; }
+.diff-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--muted2);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.diff-option.selected .diff-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(0,245,255,0.5);
+}
+.diff-info { flex: 1; }
+.diff-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+.diff-desc { font-size: 10px; color: var(--muted); line-height: 1.5; }
+.diff-right { font-size: 9px; color: var(--muted); white-space: nowrap; }
+
+.btn-launch {
+  width: 100%;
+  margin-top: 24px;
+  padding: 20px;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s;
+  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+  min-height: 60px;
+  text-transform: uppercase;
+}
+.btn-launch::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: translateX(-110%);
+  transition: transform 0.25s;
+  z-index: -1;
+}
+.btn-launch:active::before, .btn-launch:hover::before { transform: translateX(0); }
+.btn-launch:active, .btn-launch:hover { color: #000; }
+
+/* ══════════════════════ GAME PAGE ══════════════════════ */
+#page-game {
+  padding: 0;
+  align-items: stretch;
+  min-height: 100dvh;
+}
+
+.game-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(4,4,10,0.97);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(12px + var(--sat)) 16px 12px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.game-title-sm {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 3px;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.game-title-sm span { color: var(--accent); }
+
+.game-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.mode-badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+
+.move-counter {
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.move-counter span { color: var(--gold); font-weight: 700; }
+
+.btn-menu {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  min-height: 36px;
+  min-width: 44px;
+}
+.btn-menu:active, .btn-menu:hover { color: var(--text); border-color: var(--border2); }
+
+/* Game area — scrollable */
+.game-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  padding-bottom: calc(16px + var(--sab));
+}
+
+#gameInner { width: 100%; display: flex; justify-content: center; }
+
+/* Outer grid wrap */
+.grid-outer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: fit-content;
+}
+
+/* The actual grid */
+.game-grid {
+  display: grid;
+  background: var(--bg2);
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  position: relative;
+  touch-action: manipulation;
+}
+
+/* Cell — dynamic size set in JS */
+.cell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.18s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.cell:active:not(.cell-zero):not(.cell-locked) {
+  border-color: var(--border2);
+  background: var(--surface2);
+  transform: scale(0.96);
+}
+@media (hover: hover) {
+  .cell:hover:not(.cell-zero):not(.cell-locked) {
+    border-color: var(--border2);
+    background: var(--surface2);
+    transform: scale(1.04);
+    z-index: 2;
+  }
+}
+
+.cell-pos { color: var(--pos); }
+.cell-neg { color: var(--neg); }
+.cell-zero { color: var(--muted2); border-style: dashed; cursor: default; }
+.cell-locked { background: rgba(255,68,68,0.05); border-color: rgba(255,68,68,0.2); cursor: not-allowed; opacity: 0.55; }
+.cell-anchor {
+  border-color: var(--accent) !important;
+  background: rgba(0,245,255,0.07) !important;
+  box-shadow: 0 0 20px rgba(0,245,255,0.25), inset 0 0 8px rgba(0,245,255,0.06);
+  transform: scale(1.06) !important;
+  z-index: 5;
+}
+.cell-row-highlight { border-color: rgba(0,245,255,0.3) !important; background: rgba(0,245,255,0.03) !important; }
+.cell-col-highlight { border-color: rgba(124,58,237,0.45) !important; background: rgba(124,58,237,0.04) !important; }
+
+/* Arrow buttons inside anchor cell */
+.anchor-arrows { position: absolute; inset: 0; display: none; pointer-events: none; }
+.cell-anchor .anchor-arrows { display: block; }
+
+.arr-btn {
+  position: absolute;
+  pointer-events: auto;
+  background: transparent;
+  border: 1px solid;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.15s;
+  font-family: 'Space Mono', monospace;
+  touch-action: manipulation;
+}
+.arr-horiz {
+  bottom: 2px; left: 4px;
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.arr-vert {
+  bottom: 2px; right: 4px;
+  color: var(--purple);
+  border-color: var(--purple);
+}
+.arr-btn:active { transform: scale(0.9); }
+.arr-horiz:active { background: rgba(0,245,255,0.2); }
+.arr-vert:active { background: rgba(167,139,250,0.2); }
+@media (hover: hover) {
+  .arr-horiz:hover { background: rgba(0,245,255,0.2); transform: scale(1.15); }
+  .arr-vert:hover { background: rgba(167,139,250,0.2); transform: scale(1.15); }
+}
+
+/* HUD panels */
+.hud-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 10px 0;
+  gap: 6px;
+}
+
+.hud-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  background: var(--bg3);
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.hud-sum {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+}
+.hud-sum.zero { color: var(--success); text-shadow: 0 0 8px rgba(0,200,83,0.6); }
+.hud-sum.nonzero { color: var(--gold); }
+.hud-sum.hidden { color: var(--muted2); }
+
+.lock-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.25;
+  transition: all 0.2s;
+  padding: 0;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  min-width: 24px;
+  min-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lock-btn:active, .lock-btn:hover { opacity: 0.7; }
+.lock-btn.is-locked { opacity: 1; filter: drop-shadow(0 0 4px var(--neg)); }
+.lock-btn:disabled { opacity: 0.06; cursor: not-allowed; }
+
+/* Bottom HUD row */
+.hud-row {
+  display: flex;
+  flex-direction: row;
+  padding: 6px 10px;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+/* Game controls */
+.game-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+}
+
+.ctrl-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 12px 20px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  min-height: 48px;
+  flex: 1;
+  min-width: 100px;
+  touch-action: manipulation;
+}
+.ctrl-btn:active, .ctrl-btn:hover { border-color: var(--text); color: var(--text); }
+.ctrl-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+.ctrl-btn.undo-btn { border-color: rgba(0,245,255,0.25); color: rgba(0,245,255,0.7); }
+.ctrl-btn.undo-btn:active, .ctrl-btn.undo-btn:hover { background: rgba(0,245,255,0.06); border-color: var(--accent); color: var(--accent); }
+.ctrl-btn.reset-btn { border-color: rgba(255,68,68,0.3); color: rgba(255,68,68,0.7); }
+.ctrl-btn.reset-btn:active, .ctrl-btn.reset-btn:hover { background: rgba(255,68,68,0.06); border-color: var(--neg); color: var(--neg); }
+
+/* ══════════════════════ WIN OVERLAY ══════════════════════ */
+.win-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(4,4,10,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  animation: fadeIn 0.4s;
+  padding: 20px;
+  padding-top: calc(20px + var(--sat));
+  padding-bottom: calc(20px + var(--sab));
+}
+.win-overlay.visible { display: flex; }
+@keyframes fadeIn { from{ opacity:0; } to{ opacity:1; } }
+
+.win-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(44px, 12vw, 90px);
+  letter-spacing: 6px;
+  color: var(--accent);
+  text-shadow: 0 0 40px rgba(0,245,255,0.5);
+  animation: winPulse 1.2s ease-in-out infinite alternate;
+  text-align: center;
+}
+@keyframes winPulse {
+  from{ text-shadow: 0 0 20px rgba(0,245,255,0.3); }
+  to{ text-shadow: 0 0 80px rgba(0,245,255,0.9); }
+}
+
+.win-sub {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--muted);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.win-stats { display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; }
+.win-stat { text-align: center; }
+.win-stat-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 40px;
+  color: var(--gold);
+  line-height: 1;
+}
+.win-stat-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.win-sep { width: 120px; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: 0.3; }
+
+.win-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 320px; }
+
+/* ══════════════════════ CANVAS & TOAST ══════════════════════ */
+#particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  display: none;
+}
+
+.toast {
+  position: fixed;
+  bottom: calc(40px + var(--sab));
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  opacity: 0;
+  transition: all 0.3s;
+  z-index: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Animated shift trail */
+.shift-trail { animation: shiftTrail 0.35s ease-out forwards; }
+@keyframes shiftTrail {
+  0%{ transform: scale(0.9); opacity:0.5; }
+  60%{ transform: scale(1.05); }
+  100%{ transform: scale(1); opacity:1; }
+}
+
+/* Instruction hint */
+.game-hint {
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 12px;
+  letter-spacing: 1px;
+  line-height: 1.6;
+}
+
+/* Divider in win overlay */
+.win-divider {
+  width: 100%;
+  max-width: 280px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LANDING ══════════════ -->
+<div id="page-landing" class="page active">
+  <div class="grid-bg"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="status-bar">
+    <span><span class="status-dot"></span>SİSTEM HAZIR</span>
+    <span>v2.0</span>
+  </div>
+
+  <div class="matrix-preview" id="matrixPreview"></div>
+
+  <div class="landing-inner">
+    <div class="top-tag">Torus Paradoksu</div>
+
+    <div class="glitch-title" data-text="TAKTİKSEL MATRİS">
+      TAKTİKSEL
+      <span class="accent-line">MATRİS</span>
+    </div>
+
+    <div class="subtitle-line">TORUS · DÖNGÜ · TAKTİK</div>
+
+    <div class="hex-row">
+      <div class="hex-line"></div>
+      <div class="hex"></div>
+      <div class="hex mid"></div>
+      <div class="hex lg"></div>
+      <div class="hex mid"></div>
+      <div class="hex"></div>
+      <div class="hex-line"></div>
+    </div>
+
+    <div class="landing-btns">
+      <button class="btn-primary" onclick="showPage('page-setup')">⚡ OYUNA BAŞLA</button>
+      <button class="btn-secondary" onclick="showPage('page-howto')">NASIL OYNANIR?</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ HOW TO PLAY ══════════════ -->
+<div id="page-howto" class="page">
+  <div class="page-header">
+    <button class="nav-back" onclick="showPage('page-landing')">← GERİ</button>
+    <div class="header-title"><span>NASIL</span> OYNANIR</div>
+  </div>
+  <div class="howto-scroll">
+    <div class="howto-cards">
+      <div class="howto-card">
+        <div class="card-num">01</div>
+        <div class="card-title">Çapa Seç</div>
+        <div class="card-text">Matristeki herhangi bir <strong>sayıya dokun</strong>. Bu sayı "Çapa" olur. Sıfır hücreler çapa olamaz.</div>
+      </div>
+      <div class="howto-card">
+        <div class="card-num">02</div>
+        <div class="card-title">Kaydır</div>
+        <div class="card-text">Çapanın değeri kadar satır <strong>yatay</strong>, sütun <strong>dikey</strong> kayar. +2 → 2 adım döner.</div>
+      </div>
+      <div class="howto-card">
+        <div class="card-num">03</div>
+        <div class="card-title">Torus</div>
+        <div class="card-text">Izgaranın sonu <strong>başlangıcına bağlıdır</strong>. Kenardan çıkan sayı karşı taraftan girer.</div>
+      </div>
+      <div class="howto-card">
+        <div class="card-num">04</div>
+        <div class="card-title">Sıfırlar</div>
+        <div class="card-text">Sıfır hücreler <strong>sabit boşluktur</strong> — kaymaz, kayma sayılmaz. Kilit aynı şekilde çalışır.</div>
+      </div>
+    </div>
+
+    <div class="mechanic-demo">
+      <div class="demo-title">⚡ İNTERAKTİF DEMO</div>
+      <div class="demo-inner">
+        <div>
+          <div style="font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;">ÖNCE:</div>
+          <div class="demo-grid" id="demoGridBefore"></div>
+        </div>
+        <div class="demo-controls">
+          <button class="demo-arrow" id="demoH" onclick="demoShift('H')">→ YATAY</button>
+          <button class="demo-arrow" id="demoV" onclick="demoShift('V')">↓ DİKEY</button>
+          <button class="demo-arrow" onclick="demoReset()">↺ SIFIRLA</button>
+        </div>
+        <div>
+          <div style="font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;">SONRA:</div>
+          <div id="demoAfterWrap" style="opacity:0.3;transition:opacity 0.4s;">
+            <div class="demo-grid" id="demoGridAfter"></div>
+          </div>
+        </div>
+      </div>
+      <div id="demoExplain"></div>
+    </div>
+
+    <div class="section-heading"><span>HEDEF</span></div>
+    <div class="section-line"></div>
+    <p style="font-size:12px;color:#888;line-height:1.8;margin-bottom:24px;">
+      Her satırın ve her sütunun toplamını tam olarak <strong style="color:var(--pos)">0</strong> yapmalısın. Bir satırı düzeltirken aynı sütun karışabilir — ikisini aynı anda hesaplamak zorundasın.
+    </p>
+
+    <div class="section-heading" style="font-size:24px;"><span>ZORLUK</span> MODLARI</div>
+    <div class="section-line"></div>
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th>Mod</th>
+          <th>Sayaç</th>
+          <th>Geri Al</th>
+          <th>Kilit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-easy">Kolay</span></td>
+          <td style="color:var(--pos)">✓</td>
+          <td style="color:var(--pos)">∞</td>
+          <td style="color:var(--pos)">Tam</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-med">Orta</span></td>
+          <td style="color:var(--pos)">✓</td>
+          <td style="color:var(--gold)">5</td>
+          <td style="color:var(--pos)">Tam</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-hard">Zor</span></td>
+          <td style="color:var(--neg)">✗</td>
+          <td style="color:var(--neg)">0</td>
+          <td style="color:var(--gold)">Satır</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-extreme">Çok zor</span></td>
+          <td style="color:var(--neg)">✗</td>
+          <td style="color:var(--neg)">0</td>
+          <td style="color:var(--neg)">Yok</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="text-align:center;margin-top:20px;padding-bottom:8px;">
+      <button class="btn-primary" onclick="showPage('page-setup')">OYNAMAYA HAZIRIM →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SETUP ══════════════ -->
+<div id="page-setup" class="page">
+  <div class="page-header">
+    <button class="nav-back" onclick="showPage('page-landing')">← GERİ</button>
+    <div class="header-title"><span>OYUN</span> AYARLARI</div>
+  </div>
+  <div class="setup-scroll">
+    <div class="size-row">
+      <div class="setup-field">
+        <label class="field-label">Satır</label>
+        <input class="setup-input" type="number" id="inputRows" value="4" min="3" max="8">
+      </div>
+      <div class="setup-field">
+        <label class="field-label">Sütun</label>
+        <input class="setup-input" type="number" id="inputCols" value="4" min="3" max="8">
+      </div>
+    </div>
+
+    <div class="setup-field">
+      <label class="field-label">Zorluk Modu</label>
+      <div class="diff-options" id="diffOptions">
+        <label class="diff-option selected" onclick="selectDiff(this,'kolay')">
+          <input type="radio" name="diff" value="kolay" checked>
+          <div class="diff-dot"></div>
+          <div class="diff-info">
+            <div class="diff-name" style="color:var(--pos)">KOLAY</div>
+            <div class="diff-desc">Sayaçlar açık · Sınırsız geri al · ±2 değerler · Tam kilit</div>
+          </div>
+          <div class="diff-right"><span class="badge badge-easy">Başlangıç</span></div>
+        </label>
+        <label class="diff-option" onclick="selectDiff(this,'orta')">
+          <input type="radio" name="diff" value="orta">
+          <div class="diff-dot"></div>
+          <div class="diff-info">
+            <div class="diff-name" style="color:var(--gold)">ORTA</div>
+            <div class="diff-desc">Sayaçlar açık · 5 geri al hakkı · ±2 değerler</div>
+          </div>
+          <div class="diff-right"><span class="badge badge-med">Taktik</span></div>
+        </label>
+        <label class="diff-option" onclick="selectDiff(this,'zor')">
+          <input type="radio" name="diff" value="zor">
+          <div class="diff-dot"></div>
+          <div class="diff-info">
+            <div class="diff-name" style="color:var(--neg)">ZOR</div>
+            <div class="diff-desc">Sayaçlar gizli · Geri al yok · ±3 değerler · Sadece satır kilidi</div>
+          </div>
+          <div class="diff-right"><span class="badge badge-hard">Uzman</span></div>
+        </label>
+        <label class="diff-option" onclick="selectDiff(this,'kabus')">
+          <input type="radio" name="diff" value="kabus">
+          <div class="diff-dot"></div>
+          <div class="diff-info">
+            <div class="diff-name" style="color:var(--purple)">ÇOK ZOR</div>
+            <div class="diff-desc">Hiçbir şey yok</div>
+          </div>
+          <div class="diff-right"><span class="badge badge-extreme">Efsane</span></div>
+        </label>
+      </div>
+    </div>
+
+    <button class="btn-launch" onclick="startGame()">⚡ OYUNU BAŞLAT</button>
+  </div>
+</div>
+
+<!-- ══════════════ GAME ══════════════ -->
+<div id="page-game" class="page">
+  <div class="game-header">
+    <div class="game-title-sm">TAK<span>MATRİS</span></div>
+    <div class="game-meta">
+      <span class="move-counter">HAMLE: <span id="moveCount">0</span></span>
+      <span class="mode-badge" id="modeBadge">KOLAY</span>
+      <button class="btn-menu" onclick="showPage('page-landing')">MENÜ</button>
+    </div>
+  </div>
+
+  <div class="game-body">
+    <div id="gameInner"></div>
+
+    <div class="game-controls" id="gameControls">
+      <button class="ctrl-btn undo-btn" id="undoBtn" onclick="undo()" disabled>↩ GERİ AL</button>
+      <button class="ctrl-btn reset-btn" onclick="initGrid()">↺ YENİ KARIŞIM</button>
+    </div>
+
+    <div class="game-hint" id="gameHint">Bir hücreye dokun → yön seç</div>
+  </div>
+
+  <div id="winOverlay" class="win-overlay">
+    <div class="win-title">SİSTEM ÇÖZÜLDÜ</div>
+    <div class="win-sub">matris sıfırlandı</div>
+    <div class="win-divider"></div>
+    <div class="win-stats" id="winStats"></div>
+    <div class="win-divider"></div>
+    <div class="win-btns">
+      <button class="btn-primary" style="flex:1;min-width:120px;" onclick="initGrid();document.getElementById('winOverlay').classList.remove('visible')">YENİ OYUN</button>
+      <button class="btn-secondary" style="flex:1;min-width:120px;" onclick="showPage('page-setup');document.getElementById('winOverlay').classList.remove('visible')">AYARLAR</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="particles"></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════ PAGE NAV ══════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'page-landing') buildPreview();
+  if (id === 'page-howto') buildDemo();
+}
+
+// ══════════ LANDING PREVIEW ══════════
+function buildPreview() {
+  const prev = document.getElementById('matrixPreview');
+  prev.innerHTML = '';
+  const vals = [-3,1,-2,2,2,-1,3,-2,1,-3,3,2,-1,3,-2,1,-2,2,3,-1,1,-2,-3,-1,3];
+  vals.forEach(v => {
+    const c = document.createElement('div');
+    c.className = 'preview-cell' + (v < 0 ? ' neg' : '');
+    c.textContent = v > 0 ? '+'+v : v;
+    prev.appendChild(c);
+  });
+}
+buildPreview();
+
+// ══════════ DEMO ══════════
+const DEMO_INIT = [
+  [2,-1,-3,2],
+  [1,3,-2,-2],
+  [-2,1,3,-2],
+  [-1,-3,2,2]
+];
+let demoGrid = [];
+const ANCHOR_R = 0, ANCHOR_C = 0;
+
+function buildDemo() {
+  demoGrid = DEMO_INIT.map(r=>[...r]);
+  renderDemoGrid('demoGridBefore', DEMO_INIT, true);
+  renderDemoGrid('demoGridAfter', demoGrid, false);
+  document.getElementById('demoAfterWrap').style.opacity = '0.3';
+  document.getElementById('demoExplain').textContent = '';
+  document.getElementById('demoH').classList.remove('active-dir');
+  document.getElementById('demoV').classList.remove('active-dir');
+}
+
+function renderDemoGrid(id, g, markAnchor) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  g.forEach((row, r) => row.forEach((val, c) => {
+    const d = document.createElement('div');
+    d.className = 'demo-cell' + (val===0?' zero':val>0?' pos':' neg');
+    if (markAnchor && r===ANCHOR_R && c===ANCHOR_C) d.classList.add('anchor');
+    d.textContent = val === 0 ? '0' : (val > 0 ? '+'+val : val);
+    el.appendChild(d);
+  }));
+}
+
+function demoShift(axis) {
+  demoGrid = DEMO_INIT.map(r=>[...r]);
+  const sv = DEMO_INIT[ANCHOR_R][ANCHOR_C];
+  const N = 4;
+  if (axis === 'H') {
+    let mc = [];
+    for (let c=0;c<N;c++) if (DEMO_INIT[ANCHOR_R][c]!==0) mc.push(c);
+    let vs = mc.map(c=>demoGrid[ANCHOR_R][c]);
+    vs = rotateArray(vs, sv);
+    mc.forEach((ci,i) => demoGrid[ANCHOR_R][ci]=vs[i]);
+    document.getElementById('demoExplain').textContent = `+${sv} çapası → Satır ${sv} adım sağa kaydı`;
+    document.getElementById('demoH').classList.add('active-dir');
+    document.getElementById('demoV').classList.remove('active-dir');
+  } else {
+    let mr = [];
+    for (let r=0;r<N;r++) if (DEMO_INIT[r][ANCHOR_C]!==0) mr.push(r);
+    let vs = mr.map(r=>demoGrid[r][ANCHOR_C]);
+    vs = rotateArray(vs, sv);
+    mr.forEach((ri,i) => demoGrid[ri][ANCHOR_C]=vs[i]);
+    document.getElementById('demoExplain').textContent = `+${sv} çapası → Sütun ${sv} adım aşağı kaydı`;
+    document.getElementById('demoV').classList.add('active-dir');
+    document.getElementById('demoH').classList.remove('active-dir');
+  }
+  renderDemoGrid('demoGridAfter', demoGrid, false);
+  document.getElementById('demoAfterWrap').style.opacity = '1';
+}
+
+function demoReset() {
+  demoGrid = DEMO_INIT.map(r=>[...r]);
+  renderDemoGrid('demoGridAfter', demoGrid, false);
+  document.getElementById('demoAfterWrap').style.opacity = '0.3';
+  document.getElementById('demoExplain').textContent = '';
+  document.getElementById('demoH').classList.remove('active-dir');
+  document.getElementById('demoV').classList.remove('active-dir');
+}
+
+// ══════════ SETUP ══════════
+let selectedDiff = 'kolay';
+
+function selectDiff(el, diff) {
+  document.querySelectorAll('.diff-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedDiff = diff;
+}
+
+// ══════════ GAME STATE ══════════
+let ROWS = 4, COLS = 4;
+let diffMode = 'kolay';
+let grid = [], history = [];
+let rowLocks = [], colLocks = [];
+let activeR = null, activeC = null;
+let moveCount = 0, undosUsed = 0;
+let gameStartTime = 0;
+let cfg = {};
+
+function getModeConfig(mode) {
+  switch (mode) {
+    case 'kolay': return { maxUndo: Infinity, showCounters: true, allowRowLock: true, allowColLock: true, maxVal: 2, name: 'KOLAY', badgeClass: 'badge-easy' };
+    case 'orta':  return { maxUndo: 5, showCounters: true, allowRowLock: true, allowColLock: true, maxVal: 2, name: 'ORTA', badgeClass: 'badge-med' };
+    case 'zor':   return { maxUndo: 0, showCounters: false, allowRowLock: true, allowColLock: false, maxVal: 3, name: 'ZOR', badgeClass: 'badge-hard' };
+    case 'kabus': return { maxUndo: 0, showCounters: false, allowRowLock: false, allowColLock: false, maxVal: 3, name: 'KABUS', badgeClass: 'badge-extreme' };
+  }
+}
+
+function startGame() {
+  ROWS = Math.max(3, Math.min(8, parseInt(document.getElementById('inputRows').value) || 4));
+  COLS = Math.max(3, Math.min(8, parseInt(document.getElementById('inputCols').value) || 4));
+  diffMode = selectedDiff;
+  cfg = getModeConfig(diffMode);
+
+  const badge = document.getElementById('modeBadge');
+  badge.textContent = cfg.name;
+  badge.className = 'mode-badge ' + cfg.badgeClass;
+
+  showPage('page-game');
+  initGrid();
+}
+
+// ══════════ GRID GENERATION ══════════
+function rotateArray(arr, shift) {
+  if (arr.length <= 1) return arr;
+  const n = arr.length;
+  const s = ((shift % n) + n) % n;
+  return s === 0 ? arr : [...arr.slice(-s), ...arr.slice(0, -s)];
+}
+
+function getRowSum(r) { return grid[r].reduce((a,b)=>a+b, 0); }
+function getColSum(c) { let s=0; for(let r=0;r<ROWS;r++) s+=grid[r][c]; return s; }
+
+function generateGrid() {
+  grid = Array.from({length:ROWS}, ()=>Array(COLS).fill(0));
+  const density = Math.floor(ROWS * COLS * 2.5);
+  const mv = cfg.maxVal;
+
+  for (let i=0; i<density; i++) {
+    const r1 = Math.floor(Math.random()*ROWS);
+    const r2 = (r1 + 1 + Math.floor(Math.random()*(ROWS-1))) % ROWS;
+    const c1 = Math.floor(Math.random()*COLS);
+    const c2 = (c1 + 1 + Math.floor(Math.random()*(COLS-1))) % COLS;
+    const v = Math.floor(Math.random()*mv) + 1;
+    if (Math.abs(grid[r1][c1]+v)<=mv && Math.abs(grid[r2][c2]+v)<=mv &&
+        Math.abs(grid[r1][c2]-v)<=mv && Math.abs(grid[r2][c1]-v)<=mv) {
+      grid[r1][c1]+=v; grid[r1][c2]-=v;
+      grid[r2][c1]-=v; grid[r2][c2]+=v;
+    }
+  }
+
+  for (let r=0;r<ROWS;r++) {
+    for (let c=0;c<COLS;c++) {
+      if (grid[r][c] === 0) {
+        let paired = false;
+        for (let c2=0;c2<COLS;c2++) {
+          if (c2!==c && grid[r][c2]===0) {
+            const v = Math.floor(Math.random()*mv)+1;
+            grid[r][c]=v; grid[r][c2]=-v; paired=true; break;
+          }
+        }
+        if (!paired) {
+          for (let r2=0;r2<ROWS;r2++) {
+            if (r2!==r && grid[r2][c]===0) {
+              const v = Math.floor(Math.random()*mv)+1;
+              grid[r][c]=v; grid[r2][c]=-v; paired=true; break;
+            }
+          }
+        }
+        if (!paired) grid[r][c] = Math.random()>0.5 ? 1 : -1;
+      }
+    }
+  }
+
+  for (let k=0; k<ROWS*COLS*2; k++) {
+    const r = Math.floor(Math.random()*ROWS);
+    const c = Math.floor(Math.random()*COLS);
+    const axis = Math.random()>0.5 ? 'H' : 'V';
+    if (grid[r][c] !== 0) executeMove(r, c, axis, true);
+  }
+
+  for (let r=0;r<ROWS;r++) {
+    for (let c=0;c<COLS;c++) {
+      if (grid[r][c] === 0) grid[r][c] = Math.random()>0.5 ? 1 : -1;
+    }
+  }
+}
+
+function initGrid() {
+  generateGrid();
+  rowLocks = Array(ROWS).fill(false);
+  colLocks = Array(COLS).fill(false);
+  history = [];
+  undosUsed = 0;
+  moveCount = 0;
+  activeR = null; activeC = null;
+  gameStartTime = Date.now();
+  updateMoveCount();
+  updateUndoBtn();
+  document.getElementById('winOverlay').classList.remove('visible');
+  renderGrid();
+}
+
+// ══════════ CELL SIZE CALCULATION ══════════
+function calcCellSize() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const showHUD = diffMode !== 'kabus';
+
+  // Available width: screen - padding - HUD column if visible
+  const hudColW = showHUD ? 50 : 0;
+  const availW = vw - 32 - hudColW - 20 - (10 * 2); // padding + gap
+  const availH = vh - 160 - 80 - 60; // header + controls + hint
+
+  const cellFromW = Math.floor(availW / COLS);
+  const cellFromH = Math.floor(availH / ROWS);
+  const cell = Math.min(cellFromW, cellFromH, 72, Math.max(44, cellFromW));
+  return Math.max(38, cell);
+}
+
+// ══════════ RENDERING ══════════
+function renderGrid() {
+  const inner = document.getElementById('gameInner');
+  inner.innerHTML = '';
+
+  const showHUD = diffMode !== 'kabus';
+  const CS = calcCellSize(); // cell size
+  const GAP = Math.max(4, Math.floor(CS * 0.07));
+  const FS = Math.max(12, Math.floor(CS * 0.28)); // font size
+  const arrW = Math.max(18, Math.floor(CS * 0.32));
+  const arrH = Math.max(14, Math.floor(CS * 0.22));
+  const arrFS = Math.max(7, Math.floor(CS * 0.14));
+  const hudW = showHUD ? CS + 4 : 0;
+  const hudFS = Math.max(10, Math.floor(CS * 0.18));
+
+  const outerWrap = document.createElement('div');
+  outerWrap.className = 'grid-outer';
+
+  const topRow = document.createElement('div');
+  topRow.style.cssText = `display:flex;align-items:flex-start;gap:${GAP}px;`;
+
+  // Game grid
+  const gameGrid = document.createElement('div');
+  gameGrid.className = 'game-grid';
+  gameGrid.style.gridTemplateColumns = `repeat(${COLS}, ${CS}px)`;
+  gameGrid.style.gap = GAP + 'px';
+  gameGrid.style.padding = '10px';
+  gameGrid.id = 'gameGrid';
+
+  for (let r=0; r<ROWS; r++) {
+    for (let c=0; c<COLS; c++) {
+      const val = grid[r][c];
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.style.cssText = `width:${CS}px;height:${CS}px;font-size:${FS}px;`;
+      cell.dataset.r = r; cell.dataset.c = c;
+
+      if (val === 0) {
+        cell.classList.add('cell-zero');
+        cell.style.fontSize = Math.max(10, FS - 4) + 'px';
+        cell.textContent = '·';
+        cell.style.display = 'none';
+      } else {
+        cell.classList.add(val > 0 ? 'cell-pos' : 'cell-neg');
+        cell.textContent = val > 0 ? '+'+val : val;
+
+        const isLocked = rowLocks[r] || colLocks[c];
+        if (isLocked) {
+          cell.classList.add('cell-locked');
+        } else {
+          cell.onclick = (e) => {
+            if (e.target.classList.contains('arr-btn')) return;
+            handleCellClick(r, c);
+          };
+        }
+      }
+
+      if (activeR !== null) {
+        if (r === activeR && c === activeC) {
+          cell.classList.add('cell-anchor');
+          const arrowsDiv = document.createElement('div');
+          arrowsDiv.className = 'anchor-arrows';
+
+          const hb = document.createElement('button');
+          hb.className = 'arr-btn arr-horiz';
+          hb.style.cssText = `width:${arrW}px;height:${arrH}px;font-size:${arrFS}px;bottom:2px;left:3px;`;
+          hb.textContent = val > 0 ? '▶' : '◀';
+          hb.title = 'Yatay kaydır';
+          hb.onclick = e => { e.stopPropagation(); makeMove(r,c,'H'); };
+
+          const vb = document.createElement('button');
+          vb.className = 'arr-btn arr-vert';
+          vb.style.cssText = `width:${arrW}px;height:${arrH}px;font-size:${arrFS}px;bottom:2px;right:3px;`;
+          vb.textContent = val > 0 ? '▼' : '▲';
+          vb.title = 'Dikey kaydır';
+          vb.onclick = e => { e.stopPropagation(); makeMove(r,c,'V'); };
+
+          arrowsDiv.appendChild(hb); arrowsDiv.appendChild(vb);
+          cell.appendChild(arrowsDiv);
+        } else if (r === activeR && !colLocks[c] && !rowLocks[r]) {
+          cell.classList.add('cell-row-highlight');
+        } else if (c === activeC && !rowLocks[r] && !colLocks[c]) {
+          cell.classList.add('cell-col-highlight');
+        }
+      }
+
+      gameGrid.appendChild(cell);
+    }
+  }
+
+  topRow.appendChild(gameGrid);
+
+  // Right HUD (row sums)
+  if (showHUD) {
+    const rightHUD = document.createElement('div');
+    rightHUD.className = 'hud-col';
+    rightHUD.style.paddingTop = '10px';
+
+    for (let r=0; r<ROWS; r++) {
+      const sum = getRowSum(r);
+      const hc = document.createElement('div');
+      hc.className = 'hud-cell';
+      hc.style.cssText = `width:${hudW}px;height:${CS}px;margin-bottom:${GAP}px;`;
+
+      const sumEl = document.createElement('span');
+      sumEl.className = 'hud-sum' + (cfg.showCounters ? (sum===0?' zero':' nonzero') : (sum===0?' zero':' hidden'));
+      sumEl.style.fontSize = hudFS + 'px';
+      sumEl.textContent = cfg.showCounters ? sum : (sum===0 ? '0' : '?');
+
+      const lockBtn = document.createElement('button');
+      lockBtn.className = 'lock-btn' + (rowLocks[r] ? ' is-locked' : '');
+      lockBtn.innerHTML = rowLocks[r] ? '🔒' : '🔓';
+      lockBtn.style.fontSize = Math.max(12, Math.floor(CS * 0.22)) + 'px';
+      lockBtn.title = rowLocks[r] ? 'Kilidi aç' : 'Satırı kilitle';
+      if (cfg.allowRowLock) lockBtn.onclick = () => toggleRowLock(r);
+      else lockBtn.disabled = true;
+
+      hc.appendChild(sumEl); hc.appendChild(lockBtn);
+      rightHUD.appendChild(hc);
+    }
+    topRow.appendChild(rightHUD);
+  }
+
+  outerWrap.appendChild(topRow);
+
+  // Bottom HUD (col sums)
+  if (showHUD) {
+    const botHUD = document.createElement('div');
+    botHUD.className = 'hud-row';
+    botHUD.style.gap = GAP + 'px';
+    botHUD.style.paddingLeft = '10px';
+
+    for (let c=0; c<COLS; c++) {
+      const sum = getColSum(c);
+      const hc = document.createElement('div');
+      hc.className = 'hud-cell col-hud';
+      hc.style.cssText = `width:${CS}px;height:40px;flex-direction:column;padding:4px 6px;`;
+
+      const sumEl = document.createElement('span');
+      sumEl.className = 'hud-sum' + (cfg.showCounters ? (sum===0?' zero':' nonzero') : (sum===0?' zero':' hidden'));
+      sumEl.style.fontSize = hudFS + 'px';
+      sumEl.textContent = cfg.showCounters ? sum : (sum===0 ? '0' : '?');
+
+      const lockBtn = document.createElement('button');
+      lockBtn.className = 'lock-btn' + (colLocks[c] ? ' is-locked' : '');
+      lockBtn.innerHTML = colLocks[c] ? '🔒' : '🔓';
+      lockBtn.style.fontSize = Math.max(10, Math.floor(CS * 0.18)) + 'px';
+      lockBtn.title = colLocks[c] ? 'Kilidi aç' : 'Sütunu kilitle';
+      if (cfg.allowColLock) lockBtn.onclick = () => toggleColLock(c);
+      else lockBtn.disabled = true;
+
+      hc.appendChild(sumEl); hc.appendChild(lockBtn);
+      botHUD.appendChild(hc);
+    }
+    outerWrap.appendChild(botHUD);
+  }
+
+  inner.appendChild(outerWrap);
+  checkWin();
+}
+
+// ══════════ INTERACTION ══════════
+function handleCellClick(r, c) {
+  if (grid[r][c] === 0) return;
+  if (rowLocks[r] || colLocks[c]) return;
+  if (activeR === r && activeC === c) { activeR = null; activeC = null; }
+  else { activeR = r; activeC = c; }
+  renderGrid();
+}
+
+function makeMove(r, c, axis) {
+  history.push(JSON.parse(JSON.stringify(grid)));
+  executeMove(r, c, axis, false);
+  moveCount++;
+  updateMoveCount();
+  activeR = null; activeC = null;
+  updateUndoBtn();
+  renderGrid();
+  animateShift();
+
+  const hint = document.getElementById('gameHint');
+  if (hint) hint.style.opacity = '0';
+}
+
+function executeMove(ar, ac, axis, isSetup) {
+  const sv = grid[ar][ac];
+  if (axis === 'H' && (isSetup || !rowLocks[ar])) {
+    let mc = [];
+    for (let c=0;c<COLS;c++) if (grid[ar][c]!==0 && (isSetup||!colLocks[c])) mc.push(c);
+    if (mc.length > 1) {
+      let vs = mc.map(c=>grid[ar][c]);
+      vs = rotateArray(vs, sv);
+      mc.forEach((ci,i) => grid[ar][ci]=vs[i]);
+    }
+  } else if (axis === 'V' && (isSetup || !colLocks[ac])) {
+    let mr = [];
+    for (let r=0;r<ROWS;r++) if (grid[r][ac]!==0 && (isSetup||!rowLocks[r])) mr.push(r);
+    if (mr.length > 1) {
+      let vs = mr.map(r=>grid[r][ac]);
+      vs = rotateArray(vs, sv);
+      mr.forEach((ri,i) => grid[ri][ac]=vs[i]);
+    }
+  }
+}
+
+function toggleRowLock(r) {
+  if (!cfg.allowRowLock) return;
+  rowLocks[r] = !rowLocks[r];
+  activeR = null; activeC = null;
+  showToast(rowLocks[r] ? `Satır ${r+1} kilitlendi` : `Satır ${r+1} kilidi açıldı`);
+  renderGrid();
+}
+
+function toggleColLock(c) {
+  if (!cfg.allowColLock) return;
+  colLocks[c] = !colLocks[c];
+  activeR = null; activeC = null;
+  showToast(colLocks[c] ? `Sütun ${c+1} kilitlendi` : `Sütun ${c+1} kilidi açıldı`);
+  renderGrid();
+}
+
+function undo() {
+  if (history.length === 0) return;
+  if (cfg.maxUndo !== Infinity && undosUsed >= cfg.maxUndo) return;
+  grid = history.pop();
+  undosUsed++;
+  moveCount = Math.max(0, moveCount - 1);
+  updateMoveCount();
+  activeR = null; activeC = null;
+  updateUndoBtn();
+  renderGrid();
+}
+
+function updateMoveCount() {
+  document.getElementById('moveCount').textContent = moveCount;
+}
+
+function updateUndoBtn() {
+  const btn = document.getElementById('undoBtn');
+  if (!btn) return;
+  if (diffMode === 'zor' || diffMode === 'kabus') { btn.style.display = 'none'; return; }
+  btn.style.display = '';
+  const canUndo = history.length > 0 && (cfg.maxUndo === Infinity || undosUsed < cfg.maxUndo);
+  btn.disabled = !canUndo;
+  const left = cfg.maxUndo === Infinity ? '∞' : (cfg.maxUndo - undosUsed);
+  btn.textContent = `↩ GERİ AL (${left})`;
+}
+
+// ══════════ WIN ══════════
+function checkWin() {
+  for (let r=0;r<ROWS;r++) if (getRowSum(r) !== 0) return;
+  for (let c=0;c<COLS;c++) if (getColSum(c) !== 0) return;
+  showWin();
+}
+
+function showWin() {
+  const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+  const mins = Math.floor(elapsed/60), secs = elapsed%60;
+  const timeStr = mins > 0 ? `${mins}d ${secs}s` : `${secs}s`;
+
+  document.getElementById('winStats').innerHTML = `
+    <div class="win-stat"><div class="win-stat-val">${moveCount}</div><div class="win-stat-label">HAMLE</div></div>
+    <div class="win-stat"><div class="win-stat-val">${timeStr}</div><div class="win-stat-label">SÜRE</div></div>
+    <div class="win-stat"><div class="win-stat-val">${cfg.name}</div><div class="win-stat-label">MOD</div></div>
+  `;
+  document.getElementById('winOverlay').classList.add('visible');
+  startParticles();
+}
+
+// ══════════ PARTICLES ══════════
+function startParticles() {
+  const canvas = document.getElementById('particles');
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const particles = [];
+  const colors = ['#00f5ff','#00e676','#ffd600','#7c3aed','#a78bfa','#ff4444'];
+  for (let i=0; i<100; i++) {
+    particles.push({
+      x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+      vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4,
+      size: Math.random()*5+1, color: colors[Math.floor(Math.random()*colors.length)],
+      life: 1, decay: 0.006 + Math.random()*0.006
+    });
+  }
+  let frame = 0;
+  function animate() {
+    if (frame++ > 150) { canvas.style.display='none'; return; }
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.life -= p.decay;
+      if (p.life <= 0) return;
+      ctx.globalAlpha = Math.max(0, p.life);
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+// ══════════ ANIMATION ══════════
+function animateShift() {
+  const cells = document.querySelectorAll('.cell');
+  cells.forEach((c, i) => {
+    c.classList.remove('shift-trail');
+    void c.offsetWidth;
+    setTimeout(() => c.classList.add('shift-trail'), i * 6);
+  });
+}
+
+// ══════════ TOAST ══════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ══════════ KEYBOARD ══════════
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('page-game').classList.contains('active')) return;
+  if (e.key === 'Escape') { activeR=null; activeC=null; renderGrid(); }
+  if ((e.key === 'z' || e.key === 'Z') && (e.ctrlKey || e.metaKey)) { e.preventDefault(); undo(); }
+  if (activeR !== null && activeC !== null) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') makeMove(activeR, activeC, 'H');
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') makeMove(activeR, activeC, 'V');
+  }
+});
+
+// ══════════ RESIZE ══════════
+window.addEventListener('resize', () => {
+  if (document.getElementById('page-game').classList.contains('active') && grid.length > 0) {
+    renderGrid();
+  }
+});
+</script>
+</body>
+</html>
